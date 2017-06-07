@@ -12,20 +12,18 @@ n = 10
 skip_frame = 10
 data = []
 
+if not data_collection:
+	addr = ['face_01.npy', 'face_02.npy']
+	data = np.zeros((20, 64, 64, 3))
 
-addr = ['face_01.npy', 'face_02.npy']
-data = np.zeros((20, 64, 64, 3))
+	data[:10] = np.load(addr[0])
+	data[10:] = np.load(addr[1])
 
-data[:10] = np.load(addr[0])
-data[10:] = np.load(addr[1])
-
-all_data = data.reshape((20, -1))
-print all_data.shape
-train_data = np.zeros((20, all_data.shape[1]+1))
-train_data[:, :-1] = all_data
-train_data[:10, -1] = 1
-
-print data.shape
+	all_data = data.reshape((20, -1))
+	print all_data.shape
+	train_data = np.zeros((20, all_data.shape[1]+1))
+	train_data[:, :-1] = all_data
+	train_data[:10, -1] = 1
 
 def knn(data, testing, k=5):
     N = data.shape[0]
@@ -76,7 +74,11 @@ while True:
 			roi = cv2.resize(fc, (64, 64))
 			# print train_data.shape
 			out = str(knn(train_data, roi.flatten()))
-			cv2.putText(fr, out, (x, y), font, 1, (255, 255, 0), 2)
+			labels = {
+				'1.0': 'XYZ',
+				'0.0': 'ABC'
+			}
+			cv2.putText(fr, labels[out], (x, y), font, 1, (255, 255, 0), 2)
 			# print 'Prediction:', 
 		cv2.rectangle(fr,(x,y),(x+w,y+h),(255,0,0),2)
 		fac = fc
@@ -91,7 +93,7 @@ print len(data)
 
 if data_collection:
 	data = np.asarray(data)
-	print data.shape
+	print data.shape, '--------------'
 
 	np.save('face_02', data)
 
